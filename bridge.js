@@ -21,13 +21,17 @@ const operationCall = async () => {
       ethAddress: ethAddress,
     });
 
+    console.log(operation.transactionHash);
+
     await operation.skipAction(ACTION_TYPE.approveEthManger);
 
     await operation.confirmAction({
       actionType: ACTION_TYPE.lockToken,
-      transactionHash: hash,
+      transactionHash: operation.transactionHash,
     });
   } catch (e) {
     console.error('Error: ', e.message, e.response?.body);
   }
 };
+
+
