@@ -1,17 +1,14 @@
-module.exports.OperationCall = async function(oneAddress, ethAddress, amount, hash) {
-  await operationCall(oneAddress, ethAddress, amount, hash);
+module.exports.OperationCall = async function(approveTxnHash, lockTxnHash, oneAddress, ethAddress, amount) {
+  await operationCall(approveTxnHash, lockTxnHash, oneAddress, ethAddress, amount);
 }
 
 const { BridgeSDK, TOKEN, EXCHANGE_MODE, NETWORK_TYPE, ACTION_TYPE } = require('bridge-sdk');
 const configs = require('bridge-sdk/lib/configs');
 
-
-const operationCall = async () => {
-  const bridgeSDK = new BridgeSDK({ logLevel: 2 }); // 2 - full logs, 1 - only success & errors, 0 - logs off
-
-  await bridgeSDK.init(configs.testnet);
-
+const operationCall = async (approveTxnHash, lockTxnHash, oneAddress, ethAddress, amount) => {
   try {
+    const bridgeSDK = new BridgeSDK({ logLevel: 2 });
+    await bridgeSDK.init(configs.testnet);
     const operation = await bridgeSDK.createOperation({
       type: EXCHANGE_MODE.ETH_TO_ONE,
       token: TOKEN.BUSD,
@@ -21,17 +18,17 @@ const operationCall = async () => {
       ethAddress: ethAddress,
     });
 
-    console.log(operation.transactionHash);
-
-    await operation.skipAction(ACTION_TYPE.approveEthManger);
+    await operation.confirmAction({
+      actionType: ACTION_TYPE.approveEthManger,
+      transactionHash: approveTxnHash,
+    });
 
     await operation.confirmAction({
       actionType: ACTION_TYPE.lockToken,
-      transactionHash: operation.transactionHash,
+      transactionHash: lockTxnHash,
     });
   } catch (e) {
-    console.error('Error: ', e.message, e.response?.body);
+    console.error("Error: ", e.message, e.response?.body);
   }
-};
-
+}
 

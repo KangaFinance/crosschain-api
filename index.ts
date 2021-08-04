@@ -19,11 +19,14 @@ app.post('/lp/explore',(req, res) => {
   res.send('Hello Explore!');
 });
 app.post('/lp/addLiquidity',(req, res) => {
+
   const oneAddress = req.body.oneAddress 
   const ethAddress = req.body.ethAddress
+  const approveTxnHash = req.body.approveTxnHash
+  const lockTxnHash = req.body.lockTxnHash
   const amount = req.body.amount
-  const hash = req.body.hash
-  bridge.OperationCall(oneAddress,ethAddress,amount,hash);
+
+  bridge.OperationCall(approveTxnHash, lockTxnHash, oneAddress, ethAddress, amount);
 });
 
 app.post('/lp/removeLiquidity',(req, res) => {

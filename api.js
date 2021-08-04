@@ -1,3 +1,6 @@
+
+var request = require('request');
+
 require("dotenv").config();
 const {
   BridgeSDK,
@@ -91,9 +94,24 @@ async function perform(approveTxnHash, lockTxnHash) {
   }
 }
 
+function postRequest(url,body) {
+  var clientServerOptions = {
+    uri: url,
+    body: JSON.stringify(body),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+  request(clientServerOptions, function (error, response) {
+    console.log(error,response.body);
+    return;
+  });
+}
+
 async function main() {
   try {
-    let amount = web3.utils.toWei("1", "ether");
+    let amount = web3.utils.toWei("0.01", "ether");
     const approveTxnHash = await approveBUSDEthManager(amount);
     console.log("approveTxnHash", approveTxnHash);
 
@@ -102,12 +120,22 @@ async function main() {
     const lockTxnHash = await lockTxn(amount);
     console.log("lockTxnHash", lockTxnHash);
 
+    const body = {
+        "approveTxnHash" : approveTxnHash, 
+        "lockTxnHash" : lockTxnHash, 
+        "oneAddress" : oneAddress,
+        "ethAddress" : ethAddress,
+        "amount" : amount
+      }
+
+    postRequest('http://localhost:3000/lp/addLiquidity',body)
     // setTimeout(() => {  web3.eth.getTransactionReceipt(lockTxnHash).then((receipt)=>{console.log(receipt);}); }, 10000);
-    setTimeout(() => {
-      perform(approveTxnHash, lockTxnHash).then(() => {
-        console.log("done");
-      });
-    }, 10000);
+    // setTimeout(() => {
+    //   perform(approveTxnHash, lockTxnHash).then(() => {
+    //     console.log("done");
+    //   });
+    // }, 10000);
+
   } catch (e) {
     console.error("Error: ", e.message, e.response?.body);
   }
