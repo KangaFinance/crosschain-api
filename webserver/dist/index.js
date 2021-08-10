@@ -7,7 +7,7 @@ var express_1 = __importDefault(require("express"));
 var app = express_1.default();
 app.use(express_1.default.json());
 var bridge = require('../bridge.js');
-var viper = require('../viper.js');
+var viper = require('../viper.ts');
 var cors = require('cors');
 app.use(cors({ origin: true, credentials: true }));
 app.get('/', function (req, res) {
@@ -19,9 +19,16 @@ app.post('/lp/explore', function (req, res) {
     res.send('Hello Explore!');
 });
 app.post('/lp/addLiquidity', function (req, res) {
-    bridge.OperationCall(req.body.oneAddress, req.body.ethAddress, req.body.hash);
+    var oneAddress = req.body.oneAddress;
+    var ethAddress = req.body.ethAddress;
+    var approveTxnHash = req.body.approveTxnHash;
+    var lockTxnHash = req.body.lockTxnHash;
+    var amount = req.body.amount;
+    bridge.OperationCall(approveTxnHash, lockTxnHash, oneAddress, ethAddress, amount);
+    res.send('Hello addLiquidity!');
 });
-app.post('/lp/removeLiquidity', function (req, res) {
+app.get('/lp/removeLiquidity', function (req, res) {
+    viper.ExactInputTrade();
     res.send('Hello removeLiquidity!');
 });
 var port = process.env.PORT || 3000;

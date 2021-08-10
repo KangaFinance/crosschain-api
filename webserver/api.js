@@ -75,9 +75,9 @@ async function perform(approveTxnHash, lockTxnHash) {
       type: EXCHANGE_MODE.ETH_TO_ONE,
       token: TOKEN.BUSD,
       network: NETWORK_TYPE.ETHEREUM, // NETWORK_TYPE.BINANCE
-      amount: 1,
-      oneAddress: "one1pdv9lrdwl0rg5vglh4xtyrv3wjk3wsqket7zxy",
-      ethAddress: "0x0b585f8daefbc68a311fbd4cb20d9174ad174016",
+      amount: 0.1,
+      oneAddress: "0x9E1AD78422Fd571B26D93EeB895f631A67Cd5462",
+      ethAddress: "0x9E1AD78422Fd571B26D93EeB895f631A67Cd5462",
     });
 
     await operation.confirmAction({
@@ -94,7 +94,8 @@ async function perform(approveTxnHash, lockTxnHash) {
   }
 }
 
-function postRequest(url,body) {
+async function postRequest(url,body) {
+  
   var clientServerOptions = {
     uri: url,
     body: JSON.stringify(body),
@@ -111,30 +112,29 @@ function postRequest(url,body) {
 
 async function main() {
   try {
-    let amount = web3.utils.toWei("0.01", "ether");
+    let amount = web3.utils.toWei("0.15", "ether");
     const approveTxnHash = await approveBUSDEthManager(amount);
     console.log("approveTxnHash", approveTxnHash);
 
     // setTimeout(() => {  web3.eth.getTransactionReceipt(approveTxnHash).then((receipt)=>{console.log(receipt);}); }, 10000);
-
     const lockTxnHash = await lockTxn(amount);
     console.log("lockTxnHash", lockTxnHash);
 
     const body = {
         "approveTxnHash" : approveTxnHash, 
         "lockTxnHash" : lockTxnHash, 
-        "oneAddress" : oneAddress,
-        "ethAddress" : ethAddress,
+        "oneAddress" : "0x9E1AD78422Fd571B26D93EeB895f631A67Cd5462",
+        "ethAddress" : "0x9E1AD78422Fd571B26D93EeB895f631A67Cd5462",
         "amount" : amount
       }
 
-    postRequest('http://localhost:3000/lp/addLiquidity',body)
-    // setTimeout(() => {  web3.eth.getTransactionReceipt(lockTxnHash).then((receipt)=>{console.log(receipt);}); }, 10000);
-    // setTimeout(() => {
-    //   perform(approveTxnHash, lockTxnHash).then(() => {
-    //     console.log("done");
-    //   });
-    // }, 10000);
+    await postRequest('http://localhost:3000/lp/addLiquidity',body) 
+    // // setTimeout(() => {  web3.eth.getTransactionReceipt(lockTxnHash).then((receipt)=>{console.log(receipt);}); }, 10000);
+    // // setTimeout(() => {
+    // //   perform(approveTxnHash, lockTxnHash).then(() => {
+    // //     console.log("done");
+    // //   });
+    // // }, 10000);
 
   } catch (e) {
     console.error("Error: ", e.message, e.response?.body);
