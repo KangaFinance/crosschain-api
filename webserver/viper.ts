@@ -25,18 +25,22 @@ module.exports.ExactInputTrade = async function() {
 
 const exactInputTrade = async () => {
     
-    const HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_MAINNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token')
-    const HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_MAINNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD')
+    //const HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_TESTNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token')
+    //const HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_TESTNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD')
+
+    const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE')
+    const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD')
+    
 
     // note that you may want/need to handle this async code differently,
     // for example if top-level await is not an option
 
     try {
         
-        const pair = new Pair(new TokenAmount(HARMONY_MAINNET_BSCBUSD, JSBI.BigInt(1000)), new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(1000)))
-        const route = new Route([pair], HARMONY_MAINNET_BUSD)
+        const pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)))
+        const route = new Route([pair], HARMONY_TESTNET_1BUSD)
         
-        const amount = new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(100))
+        const amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100))
 
         const trade = new Trade(
             route,

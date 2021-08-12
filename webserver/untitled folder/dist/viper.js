@@ -66,16 +66,16 @@ module.exports.ExactInputTrade = function () {
 //     return `0x${Amount.raw.toString(16)}`;
 // }
 var exactInputTrade = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var HARMONY_TESTNET_WONE, HARMONY_TESTNET_1BUSD, pair, route, amount, trade;
+    var HARMONY_MAINNET_BSCBUSD, HARMONY_MAINNET_BUSD, pair, route, amount, trade;
     return __generator(this, function (_a) {
-        HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE');
-        HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD');
+        HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_TESTNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token');
+        HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_TESTNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD');
         // note that you may want/need to handle this async code differently,
         // for example if top-level await is not an option
         try {
-            pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)));
-            route = new Route([pair], HARMONY_TESTNET_1BUSD);
-            amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100));
+            pair = new Pair(new TokenAmount(HARMONY_MAINNET_BSCBUSD, JSBI.BigInt(1000)), new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(1000)));
+            route = new Route([pair], HARMONY_MAINNET_BUSD);
+            amount = new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(100));
             trade = new Trade(route, amount, TradeType.EXACT_INPUT);
             console.log(trade);
             //   const web3 = new Web3(
