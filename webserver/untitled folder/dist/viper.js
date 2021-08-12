@@ -68,8 +68,8 @@ module.exports.ExactInputTrade = function () {
 var exactInputTrade = function () { return __awaiter(void 0, void 0, void 0, function () {
     var HARMONY_MAINNET_BSCBUSD, HARMONY_MAINNET_BUSD, pair, route, amount, trade;
     return __generator(this, function (_a) {
-        HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_MAINNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token');
-        HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_MAINNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD');
+        HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_TESTNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token');
+        HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_TESTNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD');
         // note that you may want/need to handle this async code differently,
         // for example if top-level await is not an option
         try {
