@@ -48,6 +48,7 @@ var HARMONY = require('@venomswap/sdk').HARMONY;
 var JSBI = require('jsbi');
 var CurrencyAmount = require('@venomswap/sdk').CurrencyAmount;
 var Percent = require('@venomswap/sdk').Percent;
+var currencyEquals = require('@venomswap/sdk').currencyEquals;
 var Web3 = require('web3');
 module.exports.ExactInputTrade = function () {
     return __awaiter(this, void 0, void 0, function () {
@@ -65,20 +66,18 @@ module.exports.ExactInputTrade = function () {
 //     return `0x${Amount.raw.toString(16)}`;
 // }
 var exactInputTrade = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var HARMONY_MAINNET_BSCBUSD, HARMONY_MAINNET_BUSD, USDC, DAI, pair, route, trade;
-    var _a;
-    return __generator(this, function (_b) {
+    var HARMONY_MAINNET_BSCBUSD, HARMONY_MAINNET_BUSD, pair, route, amount, trade;
+    return __generator(this, function (_a) {
         HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_MAINNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token');
         HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_MAINNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD');
-        USDC = new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 18, 'USDC', 'USD Coin');
-        DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'DAI Stablecoin');
         // note that you may want/need to handle this async code differently,
         // for example if top-level await is not an option
         try {
-            pair = new Pair(new TokenAmount(HARMONY_MAINNET_BSCBUSD, '100'), new TokenAmount(HARMONY_MAINNET_BUSD, '101'));
-            route = new Route([pair], HARMONY_MAINNET_BSCBUSD);
-            trade = new Trade(route, new TokenAmount(HARMONY_MAINNET_BSCBUSD, '100'), TradeType.EXACT_OUTPUT);
-            console.log(trade.inputAmount.currency);
+            pair = new Pair(new TokenAmount(HARMONY_MAINNET_BSCBUSD, JSBI.BigInt(1000)), new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(1000)));
+            route = new Route([pair], HARMONY_MAINNET_BUSD);
+            amount = new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(100));
+            trade = new Trade(route, amount, TradeType.EXACT_INPUT);
+            console.log(trade);
             //   const web3 = new Web3(
             //     new Web3.providers.HttpProvider(process.env.HARMONY_NODE_URL)
             //   );
@@ -104,16 +103,10 @@ var exactInputTrade = function () { return __awaiter(void 0, void 0, void 0, fun
             //       deadline,
             //       {value, gasPrice: gas}
             //   );     
-            // const trade = new Trade(
-            //     new Route([pair], HARMONY_MAINNET_BUSD, ETHER),
-            //     new TokenAmount(HARMONY_MAINNET_BUSD, JSBI.BigInt(100)),
-            //     TradeType.EXACT_INPUT
-            // )
-            // console.log(trade)
-            //console.log(Trade.bestTradeExactIn([], new TokenAmount(HARMONY_MAINNET_BSCBUSD, JSBI.BigInt(100)), HARMONY_MAINNET_BUSD))
+            // console.log(Trade.bestTradeExactIn([], new TokenAmount(HARMONY_MAINNET_BSCBUSD, 101), HARMONY_MAINNET_BUSD))
         }
         catch (e) {
-            console.error("Error: ", e.message, (_a = e.response) === null || _a === void 0 ? void 0 : _a.body);
+            console.error("Error: ", e.message);
         }
         return [2 /*return*/];
     });
