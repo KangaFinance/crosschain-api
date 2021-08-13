@@ -4,8 +4,8 @@ const app = express();
 
 app.use(express.json());
 
-var bridge = require('../bridge.js');
-var viper = require('../viper.ts');
+var bridge = require('../src/bridge.js');
+var viper = require('../src/viper.ts');
 var cors=require('cors');
 
 app.use(cors({origin:true,credentials: true}));
