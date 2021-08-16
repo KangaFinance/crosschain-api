@@ -1,5 +1,7 @@
+import { contracts } from "./contracts"
 const Token = require('@venomswap/sdk').Token
 const TokenAmount = require('@venomswap/sdk').TokenAmount
+const ROUTER_ADDRESSES = require('@venomswap/sdk').ROUTER_ADDRESSES 
 const ChainId = require('@venomswap/sdk').ChainId
 const Pair = require('@venomswap/sdk').Pair
 const Route = require('@venomswap/sdk').Route
@@ -15,25 +17,81 @@ const currencyEquals = require('@venomswap/sdk').currencyEquals
 
 const Web3 = require('web3');
 
-module.exports.ExactInputTrade = async function() {
-    await exactInputTrade();
+function toHex(Amount) {
+    return `0x${Amount.raw.toString(16)}`;
+}
+
+module.exports.GetInfo = async function() {
+    await getInfo();
   }
-
-// function toHex(Amount) {
-//     return `0x${Amount.raw.toString(16)}`;
-// }
-
-const exactInputTrade = async () => {
+const getInfo = async () => {
     
-    //const HARMONY_MAINNET_BSCBUSD = new Token(ChainId.HARMONY_TESTNET, '0x0ab43550a6915f9f67d0c454c2e90385e6497eaa', 18, 'bscBUSD', 'BUSD Token')
-    //const HARMONY_MAINNET_BUSD = new Token(ChainId.HARMONY_TESTNET, '0xE176EBE47d621b984a73036B9DA5d834411ef734', 18, 'BUSD', 'Binance USD')
 
+    try {
+        
+        console.log('ChainId: ',ChainId)
+        console.log('TradeType: ',TradeType)
+        console.log('ETHER: ',ETHER)
+        console.log('WETH: ',WETH)
+        console.log('HARMONY: ',HARMONY)
+        // const routerAddress = ROUTER_ADDRESSES[chainId]
+        
+        console.log('Token: ',Token)
+        console.log('TokenAmount: ',TokenAmount)
+        console.log('Pair: ',Pair)
+        console.log('Route: ',Route)
+        console.log('Trade: ',Trade)
+        console.log('JSBI: ',JSBI)
+        console.log('CurrencyAmount: ',CurrencyAmount)
+        console.log('Percent: ',Percent)
+        console.log('currencyEquals: ',currencyEquals)
+    }
+    catch (e) {
+        console.error("Error: ", e.message);
+      }
+    }
+
+module.exports.ExactInputTradeQuote = async function() {
+        await exactInputTradeQuote();
+      } 
+
+const exactInputTradeQuote = async () => {
+    
     const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE')
     const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD')
     
 
-    // note that you may want/need to handle this async code differently,
-    // for example if top-level await is not an option
+
+    try {
+        
+        const pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)))
+        const route = new Route([pair], HARMONY_TESTNET_1BUSD)
+        
+        const amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100))
+
+        const trade = await new Trade(
+            route,
+            amount,
+            TradeType.EXACT_INPUT
+        )
+        console.log(trade)
+        return trade
+    }
+    catch (e) {
+        console.error("Error: ", e.message);
+      }
+    }
+    
+
+module.exports.ExactInputTrade = async function() {
+    await exactInputTrade();
+  }
+
+const exactInputTrade = async () => {
+    
+    const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE')
+    const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD')
+    
 
     try {
         
@@ -48,6 +106,16 @@ const exactInputTrade = async () => {
             TradeType.EXACT_INPUT
         )
         console.log(trade)
+
+
+        // - Instantiate a new ethers.Contract using the Router ABI + Router Address
+        // - Approve the router to spend tokens for the wallet issuing the swap (if not already done)
+        // - Get the current swap rate using router.getAmountsOut by supplying the amount of tokens you want to swap + the swap path/route you want to use
+        // - If swapping between tokens, use swapExactTokensForTokens as the router method, if swapping from a token to a native token (e.g. ETH, ONE, BNB),
+        //   use swapExactTokensForETH as the router method. If it’s direct token -> token, swap you’ll only have two items in the route/path array.
+        //   Getting Contracts - https://gist.github.com/0xViper/9fbc48ee67f733ddc299458c447d9fda
+        //   Sample swap for token - https://gist.github.com/0xViper/45e3b91da733bceb7131f4045ebced72 
+
 
         //   const web3 = new Web3(
         //     new Web3.providers.HttpProvider(process.env.HARMONY_NODE_URL)
@@ -88,5 +156,4 @@ const exactInputTrade = async () => {
 
     
 }
-
 

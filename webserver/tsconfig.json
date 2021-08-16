@@ -12,6 +12,7 @@
     "alwaysStrict": true,
     /* Module Resolution Options */
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "baseUrl": "./src",
     "esModuleInterop": true
   },
