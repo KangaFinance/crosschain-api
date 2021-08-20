@@ -6,7 +6,7 @@ app.use(express.json());
 
 var bridge = require('../src/bridge.js');
 var viper = require('../src/viper.ts');
-var kanga = require('../src/kanga.ts');
+//var kanga = require('../src/kanga.ts');
 var cors=require('cors');
 
 app.use(cors({origin:true,credentials: true}));

@@ -1,0 +1,68 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+const Token = require('@kangafinance/sdk').Token;
+const TokenAmount = require('@kangafinance/sdk').TokenAmount;
+const ChainId = require('@kangafinance/sdk').ChainId;
+const Pair = require('@kangafinance/sdk').Pair;
+const Route = require('@kangafinance/sdk').Route;
+const Trade = require('@kangafinance/sdk').Trade;
+const TradeType = require('@kangafinance/sdk').TradeType;
+const ETHER = require('@kangafinance/sdk').ETHER;
+const WETH = require('@kangafinance/sdk').WETH;
+const HARMONY = require('@kangafinance/sdk').HARMONY;
+const JSBI = require('jsbi');
+const CurrencyAmount = require('@kangafinance/sdk').CurrencyAmount;
+const Percent = require('@kangafinance/sdk').Percent;
+const currencyEquals = require('@kangafinance/sdk').currencyEquals;
+const Web3 = require('web3');
+module.exports.ExactInputTradeQuote = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exactInputTradeQuote();
+    });
+};
+function toHex(Amount) {
+    return `0x${Amount.raw.toString(16)}`;
+}
+const exactInputTradeQuote = () => __awaiter(void 0, void 0, void 0, function* () {
+    const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE');
+    const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD');
+    try {
+        const pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)));
+        const route = new Route([pair], HARMONY_TESTNET_1BUSD);
+        const amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100));
+        const trade = yield new Trade(route, amount, TradeType.EXACT_INPUT);
+        console.log(trade);
+        return trade;
+    }
+    catch (e) {
+        console.error("Error: ", e.message);
+    }
+});
+module.exports.ExactInputTrade = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exactInputTrade();
+    });
+};
+const exactInputTrade = () => __awaiter(void 0, void 0, void 0, function* () {
+    const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE');
+    const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD');
+    try {
+        const pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)));
+        const route = new Route([pair], HARMONY_TESTNET_1BUSD);
+        const amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100));
+        const trade = new Trade(route, amount, TradeType.EXACT_INPUT);
+        console.log(trade);
+    }
+    catch (e) {
+        console.error("Error: ", e.message);
+    }
+});
+//# sourceMappingURL=kanga.js.map
