@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import "dotenv/config"
 import { getRouterContract, getTokenContract } from "./contracts"
 
 const ChainId = require('@venomswap/sdk').ChainId

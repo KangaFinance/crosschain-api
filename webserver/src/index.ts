@@ -1,4 +1,5 @@
 import express from "express";
+import "dotenv/config"
 
 const app = express();
 
@@ -13,7 +14,8 @@ app.use(cors({origin:true,credentials: true}));
 
 // Hello World
 app.get('/',(req, res) => {
-    res.send('Hello World!');
+    const private_key = process.env.HELLO || 'Hello World';
+    res.send(private_key);
 });
 
 // Get Info
