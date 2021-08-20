@@ -8,61 +8,89 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const Token = require('@venomswap/sdk').Token;
-const TokenAmount = require('@venomswap/sdk').TokenAmount;
 const ChainId = require('@venomswap/sdk').ChainId;
-const Pair = require('@venomswap/sdk').Pair;
-const Route = require('@venomswap/sdk').Route;
-const Trade = require('@venomswap/sdk').Trade;
-const TradeType = require('@venomswap/sdk').TradeType;
-const ETHER = require('@venomswap/sdk').ETHER;
-const WETH = require('@venomswap/sdk').WETH;
-const HARMONY = require('@venomswap/sdk').HARMONY;
-const JSBI = require('jsbi');
-const CurrencyAmount = require('@venomswap/sdk').CurrencyAmount;
-const Percent = require('@venomswap/sdk').Percent;
-const currencyEquals = require('@venomswap/sdk').currencyEquals;
-const Web3 = require('web3');
-module.exports.ExactInputTradeQuote = function () {
+const formatEther = require('ethers').utils.formatEther;
+const parseEther = require('ethers').utils.parseEther;
+const math = require('mathjs');
+var contracts = require('./contracts.js');
+module.exports.swapForToken = function (amount, wallet, fromToken, toToken, destinationAddress) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield exactInputTradeQuote();
+        yield swapForToken(amount, wallet, fromToken, toToken, destinationAddress);
     });
 };
-function toHex(Amount) {
-    return `0x${Amount.raw.toString(16)}`;
-}
-const exactInputTradeQuote = () => __awaiter(void 0, void 0, void 0, function* () {
-    const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE');
-    const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD');
-    try {
-        const pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)));
-        const route = new Route([pair], HARMONY_TESTNET_1BUSD);
-        const amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100));
-        const trade = yield new Trade(route, amount, TradeType.EXACT_INPUT);
-        console.log(trade);
-        return trade;
-    }
-    catch (e) {
-        console.error("Error: ", e.message);
-    }
-});
-module.exports.ExactInputTrade = function () {
+module.exports.checkBalance = function (wallet, fromToken, amount) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield exactInputTrade();
+        return yield checkBalance(wallet, fromToken, amount);
     });
 };
-const exactInputTrade = () => __awaiter(void 0, void 0, void 0, function* () {
-    const HARMONY_TESTNET_WONE = new Token(ChainId.HARMONY_TESTNET, '0x7466d7d0C21Fa05F32F5a0Fa27e12bdC06348Ce2', 18, 'WONE', 'Wrapped ONE');
-    const HARMONY_TESTNET_1BUSD = new Token(ChainId.HARMONY_TESTNET, '0x0E80905676226159cC3FF62B1876C907C91F7395', 18, '1BUSD', 'OneBUSD');
-    try {
-        const pair = new Pair(new TokenAmount(HARMONY_TESTNET_WONE, JSBI.BigInt(1000)), new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(1000)));
-        const route = new Route([pair], HARMONY_TESTNET_1BUSD);
-        const amount = new TokenAmount(HARMONY_TESTNET_1BUSD, JSBI.BigInt(100));
-        const trade = new Trade(route, amount, TradeType.EXACT_INPUT);
-        console.log(trade);
-    }
-    catch (e) {
-        console.error("Error: ", e.message);
-    }
-});
+const setAllowance = function (fromTokenContract, amount, router) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fromTokenContract.approve(router.address, amount);
+    });
+};
+const checkBalance = function (wallet, fromToken, amount) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const fromTokenContract = contracts.getTokenContract(ChainId.HARMONY_TESTNET, fromToken, wallet);
+            const fromTokenSymbol = yield fromTokenContract.symbol();
+            console.log(`Checking ${fromTokenSymbol} balance for ${wallet.address} ...`);
+            const tokenBalance = yield fromTokenContract.balanceOf(wallet.address);
+            return math.compare(tokenBalance._hex, parseEther(amount)._hex);
+        }
+        catch (e) {
+            console.error("Error: ", e.message, e);
+        }
+    });
+};
+const swapForToken = function (amount, wallet, fromToken, toToken, destinationAddress) {
+    return __awaiter(this, void 0, void 0, function* () {
+        destinationAddress = destinationAddress ? destinationAddress : wallet.address;
+        const parsedAmount = parseEther(amount);
+        let dryRun = false;
+        const deadline = Date.now() + 1000 * 60 * 3;
+        const router = contracts.getRouterContract(ChainId.HARMONY_TESTNET, wallet);
+        const fromTokenContract = yield contracts.getTokenContract(ChainId.HARMONY_TESTNET, fromToken, wallet);
+        const toTokenContract = contracts.getTokenContract(ChainId.HARMONY_TESTNET, toToken, wallet);
+        if (router && fromTokenContract && toTokenContract) {
+            try {
+                const fromTokenSymbol = yield fromTokenContract.symbol();
+                const toTokenSymbol = yield toTokenContract.symbol();
+                console.log(`Checking ${fromTokenSymbol} balance for ${wallet.address} ...`);
+                const tokenBalance = yield fromTokenContract.balanceOf(wallet.address);
+                if (!tokenBalance.isZero()) {
+                    yield setAllowance(fromTokenContract, tokenBalance, router);
+                    const amounts = yield router.getAmountsOut(parsedAmount, [fromTokenContract.address, toTokenContract.address]);
+                    const [_, targetAmount] = amounts;
+                    const adjustedTargetAmount = targetAmount.sub(targetAmount.div(100));
+                    const swapMethod = 'swapExactTokensForTokens';
+                    const message = `${formatEther(parsedAmount)} ${fromTokenSymbol} to a minimum of ${formatEther(adjustedTargetAmount)} ${toTokenSymbol}`;
+                    console.log(`Swap method: ${swapMethod}`);
+                    console.log(`Swapping ${message}`);
+                    console.log(`Output token address: ${toTokenContract.address}`);
+                    console.log(`Input token address: ${fromTokenContract.address}`);
+                    console.log(`Wallet address: ${wallet.address}`);
+                    console.log(`Destination address: ${destinationAddress}`);
+                    console.log(`Deadline (ms): ${deadline}`);
+                    if (!dryRun) {
+                        const tx = yield router[swapMethod](parsedAmount, adjustedTargetAmount, [fromTokenContract.address, toTokenContract.address], destinationAddress, deadline, {
+                            gasLimit: 50000000
+                        });
+                        const receipt = yield tx.wait();
+                        const success = receipt && receipt.status === 1;
+                        console.log(`Swapped ${message} - Transaction receipt - tx hash: ${receipt.transactionHash}, success: ${success}\n`);
+                    }
+                    else {
+                        console.log('Not swapping due to running in dry run mode');
+                    }
+                }
+            }
+            catch (e) {
+                console.error("Error: ", e.message, e);
+            }
+        }
+        else {
+            console.log(`Couldn't find fromToken ${fromToken} or toToken ${toToken}`);
+        }
+    });
+};
 //# sourceMappingURL=viper.js.map
